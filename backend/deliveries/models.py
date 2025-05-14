@@ -1,13 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class TransportModel(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
-        
+
     class Meta:
         verbose_name = "Транспортная модель"
         verbose_name_plural = "Транспортные модели"
@@ -18,7 +17,7 @@ class PackagingType(models.Model):
 
     def __str__(self):
         return self.name
-        
+
     class Meta:
         verbose_name = "Тип упаковки"
         verbose_name_plural = "Типы упаковки"
@@ -29,7 +28,7 @@ class DeliveryService(models.Model):
 
     def __str__(self):
         return self.name
-        
+
     class Meta:
         verbose_name = "Услуга доставки"
         verbose_name_plural = "Услуги доставки"
@@ -40,7 +39,7 @@ class DeliveryStatus(models.Model):
 
     def __str__(self):
         return self.status
-        
+
     class Meta:
         verbose_name = "Статус доставки"
         verbose_name_plural = "Статусы доставки"
@@ -51,7 +50,7 @@ class CargoType(models.Model):
 
     def __str__(self):
         return self.name
-        
+
     class Meta:
         verbose_name = "Тип груза"
         verbose_name_plural = "Типы груза"
@@ -69,7 +68,7 @@ class Delivery(models.Model):
 
     def __str__(self):
         return f"{self.delivery_date} ({self.transport_model})"
-        
+
     class Meta:
         verbose_name = "Доставка"
         verbose_name_plural = "Доставки"

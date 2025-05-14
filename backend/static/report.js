@@ -49,7 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
             cargo: document.getElementById("cargo-type").value
         };
         const query = new URLSearchParams(params).toString();
-        fetch(`/api/reports/report/?${query}`)
+        
+        fetch(`/api/reports/data/?${query}`)
             .then(response => {
                 if (!response.ok) throw new Error('Ошибка загрузки данных');
                 return response.json();

@@ -1,8 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    TransportModelViewSet, PackagingTypeViewSet, DeliveryServiceViewSet,
-    DeliveryStatusViewSet, CargoTypeViewSet, DeliveryViewSet
+    TransportModelViewSet,
+    PackagingTypeViewSet,
+    DeliveryServiceViewSet,
+    DeliveryStatusViewSet,
+    CargoTypeViewSet,
+    DeliveryViewSet,
+    delivery_report
 )
 
 router = DefaultRouter()
@@ -15,4 +20,5 @@ router.register(r'deliveries', DeliveryViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('reports/data/', delivery_report, name='delivery_report'),
 ]
