@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const chartCtx = document.getElementById('deliveryChart').getContext('2d');
+    const chartCtx = document.getElementById('deliveryChart')?.getContext('2d');
     let chart = null;
     let currentSort = { key: 'delivery_date', asc: true };
     let lastTableData = [];
@@ -16,11 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function fetchAndRender() {
         showLoader();
+
         const params = {
-            start_date: document.getElementById("start-date").value,
-            end_date: document.getElementById("end-date").value,
-            service: document.getElementById("service-type").value,
-            cargo: document.getElementById("cargo-type").value
+            start_date: document.getElementById("start-date")?.value,
+            end_date: document.getElementById("end-date")?.value,
+            service: document.getElementById("service-type")?.value,
+            cargo: document.getElementById("cargo-type")?.value
         };
 
         const query = new URLSearchParams(params).toString();
@@ -32,13 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 lastTableData = data.table;
+
                 renderChart(data.chart);
                 renderTable(data.table);
+
                 hideLoader();
             })
             .catch(err => {
                 hideLoader();
                 showError('Ошибка загрузки отчёта. Попробуйте позже.');
+                console.error('Fetch error:', err);
             });
     }
 
@@ -63,8 +67,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function sortTableData(data, key, asc) {
         return [...data].sort((a, b) => {
-            const valA = a[key];
-            const valB = b[key];
+            const valA = a[key] || '';
+            const valB = b[key] || '';
 
             if (key === 'total' || key === 'distance_km') {
                 return asc ? valA - valB : valB - valA;
@@ -80,6 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderTable(data) {
         const tbody = document.getElementById("delivery-table-body");
+        if (!tbody) return;
+
         tbody.innerHTML = "";
         const sorted = sortTableData(data, currentSort.key, currentSort.asc);
 
@@ -93,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td>${row.service}</td>
                 <td>${row.status}</td>
                 <td>${row.cargo_type}</td>
-                <td>${parseFloat(row.distance_km).toFixed(2)}</td>
+                <td>${row.distance_km.toFixed(2)}</td>
                 <td>${row.created_by}</td>
             `;
             tbody.appendChild(tr);
@@ -102,55 +108,9 @@ document.addEventListener("DOMContentLoaded", function () {
         addSortingArrows();
     }
 
-    function addSortingArrows() {
-        const keys = ['total', 'delivery_date', 'transport_model', 'packaging', 'service', 'status', 'cargo_type', 'distance_km', 'created_by'];
-
-        document.querySelectorAll('.delivery-table th').forEach((th, idx) => {
-            th.classList.remove('sorted-asc', 'sorted-desc');
-
-            if (idx < keys.length) {
-                const key = keys[idx];
-                if (key === currentSort.key) {
-                    th.classList.add(currentSort.asc ? 'sorted-asc' : 'sorted-desc');
-                }
-                th.style.cursor = 'pointer';
-            } else {
-                th.style.cursor = 'default';
-            }
-        });
-    }
-
-    function setupHeaderClickHandlers() {
-        const keys = ['total', 'delivery_date', 'transport_model', 'packaging', 'service', 'status', 'cargo_type', 'distance_km', 'created_by'];
-
-        document.querySelectorAll('.delivery-table th').forEach((th, idx) => {
-            if (idx >= keys.length) return;
-
-            const key = keys[idx];
-            th.style.cursor = 'pointer';
-            th.addEventListener('click', () => {
-                if (currentSort.key === key) {
-                    currentSort.asc = !currentSort.asc;
-                } else {
-                    currentSort.key = key;
-                    currentSort.asc = true;
-                }
-
-                renderTable(lastTableData);
-            });
-        });
-    }
-
     function renderChart(data) {
+        if (!chartCtx) return;
         if (chart) chart.destroy();
-
-        // Установка размеров canvas
-        const chartContainer = document.querySelector('.chart-container');
-        const width = chartContainer.offsetWidth; 
-        const height = Math.min(width * 0.6, 400);
-
-        chartCtx.canvas.width = width;
-        chartCtx.canvas.height = height;
 
         chart = new Chart(chartCtx, {
             type: 'line',
@@ -178,22 +138,52 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, 
                 plugins: {
                     legend: { display: true },
                     title: { display: true, text: 'Количество и среднее расстояние' }
                 },
                 scales: {
-                    x: {
-                        ticks: { color: '#6B7280' },
-                        grid: { color: '#E5E7EB' }
-                    },
-                    y: {
-                        ticks: { color: '#6B7280' },
-                        grid: { color: '#E5E7EB' }
-                    }
+                    x: { ticks: { color: '#6B7280' }, grid: { color: '#E5E7EB' } },
+                    y: { ticks: { color: '#6B7280' }, grid: { color: '#E5E7EB' } }
                 }
             }
+        });
+    }
+
+    function addSortingArrows() {
+        const keys = ['total', 'delivery_date', 'transport_model', 'packaging', 'service', 'status', 'cargo_type', 'distance_km', 'created_by'];
+
+        document.querySelectorAll('.delivery-table th').forEach((th, idx) => {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+
+            if (idx < keys.length) {
+                const key = keys[idx];
+                if (key === currentSort.key) {
+                    th.classList.add(currentSort.asc ? 'sorted-asc' : 'sorted-desc');
+                }
+                th.style.cursor = 'pointer';
+            }
+        });
+    }
+
+    function setupHeaderClickHandlers() {
+        const keys = ['total', 'delivery_date', 'transport_model', 'packaging', 'service', 'status', 'cargo_type', 'distance_km', 'created_by'];
+
+        document.querySelectorAll('.delivery-table th').forEach((th, idx) => {
+            if (idx >= keys.length) return;
+
+            const key = keys[idx];
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => {
+                if (currentSort.key === key) {
+                    currentSort.asc = !currentSort.asc;
+                } else {
+                    currentSort.key = key;
+                    currentSort.asc = true;
+                }
+
+                renderTable(lastTableData);
+            });
         });
     }
 
@@ -223,7 +213,18 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    loadFilters();
-    fetchAndRender();
-    setupHeaderClickHandlers();
+    function initApp() {
+        loadFilters();
+        fetchAndRender(); // начальная загрузка
+        setupHeaderClickHandlers();
+
+        const applyBtn = document.getElementById('apply-filters');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', fetchAndRender);
+        } else {
+            console.warn('Кнопка #apply-filters не найдена!');
+        }
+    }
+
+    window.addEventListener('load', initApp);
 });

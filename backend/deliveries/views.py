@@ -56,8 +56,9 @@ def report_dashboard(request):
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def delivery_report(request):
-    deliveries = Delivery.objects.all()
+    deliveries = Delivery.objects.all().order_by('id')
 
+    # Фильтры
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     service_id = request.GET.get('service')
@@ -72,7 +73,7 @@ def delivery_report(request):
     if cargo_id:
         deliveries = deliveries.filter(cargo_type_id=cargo_id)
 
-    # Группировка по дате для графика
+    # Группировка для графика
     grouped_by_date = deliveries.values('delivery_date').annotate(
         total=Count('id'),
         avg_distance_km=Avg('distance_km')
@@ -84,9 +85,10 @@ def delivery_report(request):
         "avg_distance": [float(d["avg_distance_km"]) if d["avg_distance_km"] else 0 for d in grouped_by_date],
     }
 
-    # === Формируем данные для таблицы с нумерацией ===
     table_data = []
-    for index, d in enumerate(deliveries.select_related("transport_model", "service", "cargo_type", "status", "created_by"), start=1):
+    queryset = deliveries.select_related("transport_model", "packaging", "service", "status", "cargo_type", "created_by")
+
+    for index, d in enumerate(queryset, start=1):
         table_data.append({
             "total": index,
             "delivery_date": str(d.delivery_date),
