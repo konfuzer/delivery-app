@@ -2,8 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
-from django.db.models import Count
+from django.db.models import Count, Avg
 from .models import Delivery, TransportModel, PackagingType, DeliveryService, DeliveryStatus, CargoType
 from .serializers import (
     TransportModelSerializer,
@@ -73,26 +72,32 @@ def delivery_report(request):
     if cargo_id:
         deliveries = deliveries.filter(cargo_type_id=cargo_id)
 
-    grouped = deliveries.values('delivery_date').annotate(total=Count('id')).order_by('delivery_date')
+    # Группировка по дате для графика
+    grouped_by_date = deliveries.values('delivery_date').annotate(
+        total=Count('id'),
+        avg_distance_km=Avg('distance_km')
+    ).order_by('delivery_date')
+
     chart_data = {
-        "labels": [str(d["delivery_date"]) for d in grouped],
-        "values": [d["total"] for d in grouped],
+        "labels": [str(d["delivery_date"]) for d in grouped_by_date],
+        "total_count": [d["total"] for d in grouped_by_date],
+        "avg_distance": [float(d["avg_distance_km"]) if d["avg_distance_km"] else 0 for d in grouped_by_date],
     }
 
-    table_data = [
-        {
-            "total": 1,
+    # === Формируем данные для таблицы с нумерацией ===
+    table_data = []
+    for index, d in enumerate(deliveries.select_related("transport_model", "service", "cargo_type", "status", "created_by"), start=1):
+        table_data.append({
+            "total": index,
             "delivery_date": str(d.delivery_date),
             "transport_model": d.transport_model.name if d.transport_model else "–",
+            "packaging": d.packaging.name if d.packaging else "–",
             "service": d.service.name if d.service else "–",
-            "cargo_type": d.cargo_type.name if d.cargo_type else "–",
             "status": d.status.status if d.status else "–",
-            "distance": float(d.distance_km) if d.distance_km else 0,
-        }
-        for d in deliveries.select_related(
-            "transport_model", "service", "cargo_type", "status"
-        )
-    ]
+            "cargo_type": d.cargo_type.name if d.cargo_type else "–",
+            "distance_km": float(d.distance_km) if d.distance_km else 0,
+            "created_by": d.created_by.username if d.created_by else "–"
+        })
 
     return Response({
         "chart": chart_data,

@@ -40,11 +40,10 @@ cargo_objs = [CargoType.objects.get_or_create(name=n)[0] for n in cargos]
 # Удаляем старые тестовые доставки
 Delivery.objects.all().delete()
 
-# Создаём 20 тестовых доставок
 for i in range(20):
     d = Delivery(
         delivery_date=date.today() - timedelta(days=random.randint(0, 14)),
-        distance_km=random.uniform(1, 100),
+        distance_km=random.uniform(1, 1000),
         transport_model=random.choice(transport_objs),
         packaging=random.choice(packaging_objs),
         service=random.choice(service_objs),

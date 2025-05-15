@@ -165,3 +165,22 @@ button#apply-filters:hover {
     content: ' \25BC';
     color: #3EC6FF;
 }
+
+.sorted-asc::after {
+    content: " ▲";
+    font-size: 0.8em;
+    margin-left: 5px;
+    color: #6B7280;
+}
+
+.sorted-desc::after {
+    content: " ▼";
+    font-size: 0.8em;
+    margin-left: 5px;
+    color: #6B7280;
+}
+
+.delivery-table th {
+    position: relative;
+    cursor: pointer;
+}
