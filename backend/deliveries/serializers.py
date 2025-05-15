@@ -1,12 +1,14 @@
 from rest_framework import serializers
+
 from .models import (
-    TransportModel,
-    PackagingType,
+    Delivery,
     DeliveryService,
     DeliveryStatus,
     CargoType,
-    Delivery
+    PackagingType,
+    TransportModel
 )
+
 
 class TransportModelSerializer(serializers.ModelSerializer):
     class Meta:

@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
             tbody.appendChild(tr);
         });
 
-        addSortingArrows(); // обновляем стрелочки
+        addSortingArrows();
     }
 
     function addSortingArrows() {
@@ -146,8 +146,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Установка размеров canvas
         const chartContainer = document.querySelector('.chart-container');
-        const width = chartContainer.offsetWidth; // Ширина контейнера
-        const height = Math.min(width * 0.6, 400); // Высота — 60% ширины или максимум 400px
+        const width = chartContainer.offsetWidth; 
+        const height = Math.min(width * 0.6, 400);
 
         chartCtx.canvas.width = width;
         chartCtx.canvas.height = height;
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Чтобы график масштабировался
+                maintainAspectRatio: false, 
                 plugins: {
                     legend: { display: true },
                     title: { display: true, text: 'Количество и среднее расстояние' }

@@ -1,5 +1,7 @@
 from django.urls import path, include
+
 from rest_framework.routers import DefaultRouter
+
 from .views import (
     TransportModelViewSet,
     PackagingTypeViewSet,
@@ -9,6 +11,7 @@ from .views import (
     DeliveryViewSet,
     delivery_report
 )
+
 
 router = DefaultRouter()
 router.register(r'transports', TransportModelViewSet)

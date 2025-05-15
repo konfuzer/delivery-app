@@ -1,12 +1,14 @@
 from django.contrib import admin
+
 from .models import (
-    TransportModel,
-    PackagingType,
+    Delivery,
     DeliveryService,
     DeliveryStatus,
     CargoType,
-    Delivery
+    PackagingType,
+    TransportModel
 )
+
 
 @admin.register(TransportModel)
 class TransportModelAdmin(admin.ModelAdmin):
