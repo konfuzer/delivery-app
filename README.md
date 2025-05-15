@@ -223,3 +223,9 @@ curl http://localhost:8000/api/reports/data/
 - backend: Django + Gunicorn
 - db: PostgreSQL
 - nginx: раздача статики
+
+# Доступность в интернете #
+
+Проект также доступен в интернете по адресу
+
+http://109.172.101.2:8000/reports/
