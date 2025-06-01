@@ -21,31 +21,32 @@ from .serializers import (
 class TransportModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TransportModel.objects.all()
     serializer_class = TransportModelSerializer
-    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated
+    permission_classes = [permissions.AllowAny] #IsAuthenticated
 
 class PackagingTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PackagingType.objects.all()
     serializer_class = PackagingTypeSerializer
-    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated
+    permission_classes = [permissions.AllowAny] #IsAuthenticated
 
 class DeliveryServiceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DeliveryService.objects.all()
     serializer_class = DeliveryServiceSerializer
-    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated если используется токен
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class DeliveryStatusViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DeliveryStatus.objects.all()
     serializer_class = DeliveryStatusSerializer
-    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated если используется токен
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class CargoTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CargoType.objects.all()
     serializer_class = CargoTypeSerializer
-    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated если используется токен
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated если используется токен
+
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return DeliveryCreateSerializer
@@ -59,7 +60,7 @@ def report_dashboard(request):
     return render(request, 'reports/report_dashboard.html')
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated]) #IsAuthenticated если используется токен
+@permission_classes([permissions.AllowAny]) #IsAuthenticated если используется токен
 def delivery_report(request):
     deliveries = Delivery.objects.all()
 
