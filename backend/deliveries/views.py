@@ -21,7 +21,7 @@ from .serializers import (
 class TransportModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TransportModel.objects.all()
     serializer_class = TransportModelSerializer
-    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
+    permission_classes = [permissions.AllowAny] #IsAuthenticated
 
 class PackagingTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PackagingType.objects.all()
@@ -45,12 +45,15 @@ class CargoTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
-    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
+    permission_classes = [permissions.IsAuthenticated] #IsAuthenticated если используется токен
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return DeliveryCreateSerializer
         return DeliverySerializer
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
 def report_dashboard(request):

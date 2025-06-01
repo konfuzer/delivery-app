@@ -56,3 +56,10 @@ class DeliveryCreateSerializer(serializers.ModelSerializer):
             'delivery_date', 'distance_km',
             'transport_model', 'packaging', 'service', 'status', 'cargo_type'
         ]
+        
+    def create(self, validated_data):
+        request = self.context.get('request')
+        user = request.user if request else None
+        if user and not user.is_anonymous:
+            validated_data['created_by'] = user
+        return super().create(validated_data)
