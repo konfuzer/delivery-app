@@ -1,9 +1,12 @@
+from django.db.models import Avg, Count
 from django.shortcuts import render
+
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.db.models import Count, Avg
+
 from .models import Delivery, TransportModel, PackagingType, DeliveryService, DeliveryStatus, CargoType
+
 from .serializers import (
     TransportModelSerializer,
     PackagingTypeSerializer,
@@ -18,31 +21,31 @@ from .serializers import (
 class TransportModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TransportModel.objects.all()
     serializer_class = TransportModelSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class PackagingTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PackagingType.objects.all()
     serializer_class = PackagingTypeSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated
 
 class DeliveryServiceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DeliveryService.objects.all()
     serializer_class = DeliveryServiceSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class DeliveryStatusViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DeliveryStatus.objects.all()
     serializer_class = DeliveryStatusSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class CargoTypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CargoType.objects.all()
     serializer_class = CargoTypeSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] #IsAuthenticated если используется токен
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -54,11 +57,10 @@ def report_dashboard(request):
     return render(request, 'reports/report_dashboard.html')
 
 @api_view(['GET'])
-@permission_classes([permissions.AllowAny])
+@permission_classes([permissions.AllowAny]) #IsAuthenticated если используется токен
 def delivery_report(request):
-    deliveries = Delivery.objects.all().order_by('id')
+    deliveries = Delivery.objects.all()
 
-    # Фильтры
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     service_id = request.GET.get('service')
@@ -73,7 +75,6 @@ def delivery_report(request):
     if cargo_id:
         deliveries = deliveries.filter(cargo_type_id=cargo_id)
 
-    # Группировка для графика
     grouped_by_date = deliveries.values('delivery_date').annotate(
         total=Count('id'),
         avg_distance_km=Avg('distance_km')
@@ -86,9 +87,7 @@ def delivery_report(request):
     }
 
     table_data = []
-    queryset = deliveries.select_related("transport_model", "packaging", "service", "status", "cargo_type", "created_by")
-
-    for index, d in enumerate(queryset, start=1):
+    for index, d in enumerate(deliveries.select_related("transport_model", "service", "cargo_type", "status", "created_by"), start=1):
         table_data.append({
             "total": index,
             "delivery_date": str(d.delivery_date),
